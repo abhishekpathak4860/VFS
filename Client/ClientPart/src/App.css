@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+/* Hide native scrollbars but keep scrolling functional */
+.scrollable-sidebar {
+	/* Firefox */
+	scrollbar-width: none;
+	/* IE/Edge */
+	-ms-overflow-style: none;
+}
+
+/* Chrome, Safari, Opera */
+.scrollable-sidebar::-webkit-scrollbar {
+	width: 0;
+	height: 0;
+}
+
+/* If you later want a faint thumb on hover, uncomment these rules and adjust opacity */
+
+.scrollable-sidebar::-webkit-scrollbar {
+	width: 8px;
+}
+.scrollable-sidebar::-webkit-scrollbar-track {
+	background: transparent;
+}
+.scrollable-sidebar::-webkit-scrollbar-thumb {
+	background-color: rgba(0,0,0,0); /* hidden by default */
+	border-radius: 8px;
+	transition: background-color .18s;
+}
+.scrollable-sidebar:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(0,0,0,0.18);
+}

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
@@ -15,16 +16,49 @@ export default function List({
   async function renameFile(oldfilename) {
     setRename(oldfilename);
   }
+  // async function savefilename(oldfilename, newfilename) {
+  //   try {
+  //     const response = await fetch(`http://localhost:5000/file/${id}`, {
+  //       method: "PATCH",
+  //       body: JSON.stringify({ oldfilename, newfilename }),
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+  //     const data = await response.json();
+  //     console.log(data);
+  //     if (data) {
+  //       fetchDirectory(CurrentPath);
+  //     } // again render the data on UI
+  //     setRename("");
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
   async function savefilename(oldfilename, newfilename) {
-    const response = await fetch(`http://localhost:5000/file/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ oldfilename, newfilename }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await response.json();
-    console.log(data);
-    fetchDirectory(CurrentPath); // again render the data on UI
-    setRename("");
+    try {
+      const res = await axios.patch(
+        `http://localhost:5000/file/${id}`,
+        {
+          oldfilename,
+          newfilename,
+        },
+        {
+          withCredentials: true, // ✅ added
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      console.log(res.data);
+
+      if (res.data) {
+        fetchDirectory(CurrentPath); // re-render UI
+      }
+
+      setRename("");
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
