@@ -32,6 +32,7 @@ export default function Login() {
       //  rootId:
       if (res.status == 200) {
         dispatch(fetchUser());
+        localStorage.setItem("rootId", res.data.rootId);
         setTimeout(() => {
           navigate(`/${res.data.rootId}`);
         }, 2000);

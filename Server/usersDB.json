@@ -1,0 +1,23 @@
+[
+  {
+    "id": "fbabc053-113f-46a5-b180-e94b8e1b3d3f",
+    "name": "Abhishek Pathak",
+    "email": "abhi123@gmail.com",
+    "password": "abhi123",
+    "rootDirId": "43a1d1f8-d45e-4878-bb5b-68f2690b2ae3"
+  },
+  {
+    "id": "074d903e-3f83-4489-9a8c-365034018e68",
+    "name": "satvick singh shekhawat",
+    "email": "sat23@gmail.com",
+    "password": "sat123",
+    "rootDirId": "f75d1308-82c7-4bb7-b6bf-f6e4b51ce346"
+  },
+  {
+    "id": "fd2514cb-fca0-4039-9093-4108ccd12750",
+    "name": "Aman",
+    "email": "abhi1223@gmail.com",
+    "password": "abhi123",
+    "rootDirId": "a9091218-62da-41f0-a8c7-1d4b130fa324"
+  }
+]

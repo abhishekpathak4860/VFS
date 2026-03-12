@@ -1,108 +1,113 @@
 import express from "express";
-import { createWriteStream } from "fs";
-import fs from "fs";
-import { readdir, rename, open, rm, mkdir, writeFile } from "fs/promises";
-import path from "path";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-let filesData = JSON.parse(fs.readFileSync("./filesDB.json", "utf-8"));
-let foldersData = JSON.parse(fs.readFileSync("./foldersDB.json", "utf-8"));
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-//serving directories
-router.get("/{:id}", async (req, res) => {
+// GET directory content
+router.get("/:id", async (req, res, next) => {
   try {
+    let folderId;
+
+    const { db } = req;
     const { id } = req.params;
+    const { uid } = req.cookies;
+
     if (!id) {
-      const directoryData = foldersData[0]; // serving directory from root folder
-      const files = directoryData.content.files.map((fileId) => {
-        return filesData.find((file) => file.id === fileId);
-      });
-      const folder = directoryData.content.directories.map((folderId) => {
-        return foldersData.find((Fid) => Fid.id == folderId);
-      });
-      res.json({ ...directoryData, files, folder });
+      const user = await db
+        .collection("users")
+        .findOne({ _id: new ObjectId(uid) });
+
+      folderId = user.rootDirId;
     } else {
-      const directoryData = foldersData.find((folder) => folder.id === id);
-      const files = directoryData.content.files.map((fileId) => {
-        return filesData.find((file) => file.id === fileId);
-      });
-      const folder = directoryData.content.directories.map((folderId) => {
-        return foldersData.find((fid) => fid.id == folderId);
-      });
-      res.json({ ...directoryData, files, folder });
+      folderId = new ObjectId(id);
     }
-  } catch (err) {
-    console.log(err);
-  }
-});
 
-//upload folder
-router.post("/:foldername", async (req, res) => {
-  try {
-    // await mkdir(newDirPath, { recursive: true });
-    // res.status(200).json({ message: "Folder Created Successfully!" });
-    const { foldername } = req.params;
+    const folders = await db
+      .collection("directories")
+      .find({ parentDir: folderId })
+      .toArray();
 
-    const { parentdirid: parentDir } = req.headers;
+    const files = await db
+      .collection("files")
+      .find({ parentDir: folderId })
+      .toArray();
 
-    const Id = crypto.randomUUID();
-
-    // await mkdir(newDirPath, { recursive: true }); // create directory
-    // now create the new directory object
-
-    foldersData.push({
-      id: Id,
-      name: foldername,
-      parentDir: parentDir,
-      content: { files: [], directories: [] },
+    res.json({
+      id: folderId.toString(),
+      folders,
+      files,
     });
-    const folder = foldersData.find((folder) => folder.id == parentDir); // get parent folder directory to insert the child directory id ok
-
-    //now add the child directory id
-
-    if (folder) {
-      folder.content.directories.push(Id);
-    }
-
-    await writeFile("./foldersDB.json", JSON.stringify(foldersData));
-
-    res.status(200).json({ message: "Folder Created Successfully!" });
-  } catch (error) {
-    res.send({ message: "Folder is not uploaded" });
+  } catch (err) {
+    next(err);
   }
 });
 
-router.delete("/:id", async (req, res) => {
+// CREATE FOLDER
+router.post("/:foldername", async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { parentdirid: parentDir } = req.headers;
-    foldersData = foldersData.filter((folder) => folder.id != id); // filter out deleted folder
-    const folder = foldersData.find((folder) => folder.id == parentDir); //get parent folder
+    const { db } = req;
+    const { foldername } = req.params;
+    const { uid } = req.cookies;
 
-    if (folder) {
-      // remove child folder from parent folder
-      folder.content.directories = folder.content.directories.filter(
-        (folderId) => folderId != id
-      );
-    }
-    filesData = filesData.filter((files) => files.parentDir != id);
-    await writeFile("./filesDB.json", JSON.stringify(filesData));
-    await writeFile("./foldersDB.json", JSON.stringify(foldersData));
+    const parentDirId = req.headers.parentdirid;
+
+    const newFolder = await db.collection("directories").insertOne({
+      name: foldername,
+      parentDir: parentDirId ? new ObjectId(parentDirId) : null,
+      ownerId: new ObjectId(uid),
+      type: "folder",
+    });
+
+    res.status(201).json({
+      message: "Folder Created Successfully!",
+      folderId: newFolder.insertedId,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE FOLDER
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { db } = req;
+    const { id } = req.params;
+
+    await db.collection("directories").deleteOne({ _id: new ObjectId(id) });
+
+    await db.collection("directories").deleteMany({
+      parentDir: new ObjectId(id),
+    });
+
+    await db.collection("files").deleteMany({
+      parentDir: new ObjectId(id),
+    });
+
     res.json({ message: "folder deleted" });
   } catch (err) {
-    res.send({ message: "Folder is not deleted" });
+    next(err);
   }
 });
-router.patch("/:id", async (req, res) => {
-  const { id } = req.params;
-  const folderData = foldersData.find((folder) => folder.id === id);
-  folderData.name = req.body.newFolderName;
-  await writeFile("./foldersDB.json", JSON.stringify(foldersData));
-  res.json({ message: "Folder Renamed Successfully" });
+
+// RENAME FOLDER
+router.patch("/:id", async (req, res, next) => {
+  try {
+    const { db } = req;
+    const { id } = req.params;
+
+    await db.collection("directories").updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          name: req.body.newFolderName,
+        },
+      },
+    );
+
+    res.json({ message: "Folder Renamed Successfully" });
+  } catch (err) {
+    next(err);
+  }
 });
+
 export default router;

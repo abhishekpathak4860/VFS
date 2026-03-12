@@ -29,12 +29,16 @@ function DirectoryView() {
   const [currentFolderName, setCurrentFolderName] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const [rootId, setRootId] = useState(() => {
+    return localStorage.getItem("rootId") || null;
+  });
   const { "*": dirPath } = useParams();
 
   const handleLogout = async () => {
     try {
       await axios.post(`${url}/logout`, {}, { withCredentials: true });
 
+      localStorage.removeItem("rootId");
       dispatch(logoutUser()); // clear redux state
       navigate("/login"); // redirect to login
     } catch (error) {
@@ -123,7 +127,7 @@ function DirectoryView() {
       });
 
       setParentDirectoryId(res.data?.id);
-      setDirectoryList(res.data?.folder || []);
+      setDirectoryList(res.data?.folders || []);
       setFileList(res.data?.files || []);
     } catch (error) {
       if (error.response?.status === 401) {
@@ -142,7 +146,7 @@ function DirectoryView() {
       });
 
       // Axios auto-parses response
-      alert(res.data);
+      alert(res.data.message);
 
       fetchDirectory(CurrentPath); // re-render UI
     } catch (error) {
@@ -155,7 +159,7 @@ function DirectoryView() {
   const handleDeleteFolderConfirmation = async (folder) => {
     setIsDeleteModalOpen(true);
     setCurrentFolderName(folder.name);
-    setFolderIdToDelete(folder.id);
+    setFolderIdToDelete(folder._id);
   };
   const CancelDeleteFolder = async () => {
     setIsDeleteModalOpen(false);
@@ -196,7 +200,7 @@ function DirectoryView() {
   // rename folder
   const handleOldFolderName = (folder) => {
     setRename(folder.name);
-    setEditingFolderId(folder.id);
+    setEditingFolderId(folder._id);
   };
   const handleFolderUpdate = async (newFolderName, folderId) => {
     try {
@@ -341,7 +345,7 @@ function DirectoryView() {
           {/* Breadcrumb + stats */}
           <div className="flex items-center justify-between mb-6">
             <nav className="text-sm text-gray-600">
-              <Link to="/" className="text-blue-600 hover:underline">
+              <Link to={`/${rootId}`} className="text-blue-600 hover:underline">
                 Home
               </Link>
               <span className="mx-2 text-gray-400">/</span>
@@ -386,11 +390,11 @@ function DirectoryView() {
 
                   {directoryList.map((dir) => (
                     <div
-                      key={dir.id}
+                      key={dir._id}
                       className="flex items-center justify-between p-2 rounded hover:bg-gray-50 transition"
                     >
                       <Link
-                        to={`./${dir.id}`}
+                        to={`/${dir._id}`}
                         className="flex items-center gap-3 flex-1"
                       >
                         <div className="w-9 h-9 flex items-center justify-center bg-yellow-100 text-yellow-600 rounded">
@@ -550,12 +554,12 @@ function DirectoryView() {
                   {fileList.length === 0 && (
                     <div className="text-gray-500">No files found</div>
                   )}
-                  {fileList.map(({ name, id, type }) => (
+                  {fileList.map(({ name, _id, type }) => (
                     <List
                       data={name}
-                      id={id}
+                      id={_id}
                       type={type}
-                      key={id}
+                      key={_id}
                       Delete={handleDelete}
                       fetchDirectory={fetchDirectory}
                       CurrentPath={CurrentPath}
