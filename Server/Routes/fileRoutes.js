@@ -1,5 +1,3 @@
-// routes/fileRoutes.js
-
 import express from "express";
 
 import {

@@ -29,7 +29,7 @@ export const sendOtp = async (email) => {
 
     // 3. Send email using Nodemailer
     const mailOptions = {
-      from: '"Abhishek Pathak" <abhishekpathak37733@gmail.com>',
+      from: '"Storage App" <abhishekpathak37733@gmail.com>',
       to: email,
       subject: "Your Email Verification OTP Code",
       html: `

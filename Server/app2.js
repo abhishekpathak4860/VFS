@@ -3,12 +3,12 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import fileRoute from "./routes/fileRoutes.js";
-import folderRoute from "./routes/directoryRoutes.js";
+import fileRoute from "./Routes/fileRoutes.js";
+import folderRoute from "./Routes/directoryRoutes.js";
 import { secretKey } from "./controllers/authController.js";
 
 import checkAuth from "./auth.js";
-import authRoute from "./routes/authRoutes.js";
+import authRoute from "./Routes/authRoutes.js";
 
 import { connectDB } from "./config/db.js";
 
@@ -47,9 +47,6 @@ try {
   app.use("/", authRoute);
 
   app.get("/", (req, res) => {
-    res.set({
-      "Set-Cookie": "name=abhi",
-    });
     res.json("server is running");
   });
 
