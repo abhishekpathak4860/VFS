@@ -1,0 +1,37 @@
+1. Linear Data Structures
+Array
+String
+Linked List
+Singly Linked List
+Doubly Linked List
+Circular Linked List
+Stack
+Queue
+Simple Queue
+Circular Queue
+Deque
+Priority Queue
+2. Non-Linear Data Structures
+Tree
+Binary Tree
+Binary Search Tree (BST)
+AVL Tree
+Red-Black Tree
+Heap
+Trie
+Segment Tree
+Fenwick Tree / Binary Indexed Tree
+B-Tree / B+ Tree
+Graph
+Directed Graph
+Undirected Graph
+Weighted Graph
+Unweighted Graph
+3. Hash-Based
+Hash Table
+Hash Map
+Hash Set
+4. Specialized / Advanced
+Disjoint Set / Union-Find
+Bloom Filter
+Skip List

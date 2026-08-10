@@ -1,21 +1,29 @@
 import { ObjectId } from "mongodb";
-
+import User from "./models/User.js";
+import crypto from "crypto";
+import { secretKey } from "./controllers/authController.js";
+import Session from "./models/session.js";
 export default async function checkAuth(req, res, next) {
   try {
-    const { uid } = req.cookies;
+    const { token } = req.signedCookies;
+    // console.log(token);
 
-    if (!uid) {
+    if (!token) {
+      res.clearCookie("token");
       return res.status(401).json({ error: "user not logged in" });
     }
 
-    const { db } = req;
+    const session = await Session.findById(token);
+    if (!session) {
+      res.clearCookie("token");
+      return res.status(401).json({ message: "Session not found" });
+    }
+    const userId = session.userId;
 
-    const foundUser = await db
-      .collection("users")
-      .findOne({ _id: new ObjectId(uid) });
+    const foundUser = await User.findById(userId);
 
     if (!foundUser) {
-      return res.status(401).json({ error: "user not logged in" });
+      return res.status(401).json({ error: "user not found" });
     }
 
     // attach user to request (very useful later)
