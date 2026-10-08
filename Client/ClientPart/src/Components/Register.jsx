@@ -119,9 +119,11 @@
 // }
 
 // export default Register;
+import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { loginWithGoogle } from "../apis/loginWithGoogle";
 
 function Register() {
   const navigate = useNavigate();
@@ -435,7 +437,21 @@ function Register() {
                       : "Complete Registration"}
               </button>
             </div>
-
+            <div className="or-divider">
+              <span>OR</span>
+            </div>
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                console.log(
+                  "Google credential:",
+                  credentialResponse.credential,
+                );
+                loginWithGoogle(credentialResponse.credential);
+              }}
+              onError={() => {
+                console.log("Google Login Failed");
+              }}
+            />
             <div className="text-center pt-3">
               <p className="text-sm text-slate-500 font-medium">
                 Already have an account?{" "}

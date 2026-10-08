@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { fetchUser } from "../redux/userSlice";
+import { GoogleLogin } from "@react-oauth/google";
+import { loginWithGoogle } from "../apis/loginWithGoogle";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -11,6 +13,19 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const onSuccess = async (credentialResponse) => {
+    try {
+      const data = await loginWithGoogle(credentialResponse.credential);
+
+      dispatch(fetchUser());
+
+      localStorage.setItem("rootId", data.rootId);
+
+      navigate(`/${data.rootId}`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   function handleChange(e) {
     setFormData({
@@ -85,6 +100,15 @@ export default function Login() {
           </div>
 
           <button type="submit">Login</button>
+          <div className="or-divider">
+            <span>OR</span>
+          </div>
+          <GoogleLogin
+            onSuccess={onSuccess}
+            onError={() => {
+              console.log("Google Login Failed");
+            }}
+          />
           <p>
             Don't have an account? <Link to="/register">Register</Link>
           </p>
@@ -93,3 +117,5 @@ export default function Login() {
     </>
   );
 }
+
+// Google credential: eyJhbGciOiJSUzI1NiIsImtpZCI6Ijk0M2EzYTVkN2Q5MTk2MjVhNDU0ZTQ4OWI3NWMyOWFkYWI1N2FjYmEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMDIzNzgyNDQ3OTEtaGRwMnM3aG9hdmY0aHY3NDhhYmg2Y2NtbGE1b2dtZ2EuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIxMDIzNzgyNDQ3OTEtaGRwMnM3aG9hdmY0aHY3NDhhYmg2Y2NtbGE1b2dtZ2EuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTY2MTAzNjAwOTE4ODI4ODgwMjEiLCJlbWFpbCI6ImFiaGlzaGVrcGF0aGFrMzc3MzNAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5iZiI6MTc5MTE3MDIyNiwibmFtZSI6IkFiaGlzaGVrIFBhdGhhayIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKeFpadnlfSnUxOUlFQW9FM1FDbkhDZ0U0LXRnbWxFWnlsczhwWWxzZGVvVTc4VDE5YT1zOTYtYyIsImdpdmVuX25hbWUiOiJBYmhpc2hlayIsImZhbWlseV9uYW1lIjoiUGF0aGFrIiwiaWF0IjoxNzkxMTcwNTI2LCJleHAiOjE3OTExNzQxMjYsImp0aSI6Ijg3MjkwM2Y0MjliNmMzODUwMmUwOTQ2MjYyNDZkZmY5YTNjYTliNzYifQ.EmAcmiNCD3zUgEcEBqNiQIa32291QEsvS-Cc1lW4A8xIwNJVpgoHbex349f-WH1pk4AMDVPa9NJaXuBeyIFemgqjkcBx6kxtlQEG_8EMiBHUliOaQVwuPBPhO45eHsz3rfsy55oH7imNVX0IWbdW23-oMomm8g1QWvSne6jaXHZCjIBY15y5x5ZG33gZjA2xb60xcV5d-fn-FznR00ASxUoBK07-_ourxZehrGkl1kIyaiStbKLvEzVJpFwz2lX-J-3uPfiaT37uD9Curb8jJn0PX-JgiTxZs6ESbKjGsW9GNBqgUNkTklaOfsewHaE8n3IXZm56tjrKd_RindAhXQ

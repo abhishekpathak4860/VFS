@@ -13,7 +13,7 @@ export const fetchUser = createAsyncThunk(
         `${import.meta.env.VITE_BACKEND_LOCAL_URL}/user`,
         { withCredentials: true },
       );
-      return res.data;
+      return res.data.user;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Auth failed");
     }

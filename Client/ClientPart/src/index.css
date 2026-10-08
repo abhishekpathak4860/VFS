@@ -130,3 +130,38 @@
 .login-form button:hover {
   background-color: #4338ca;
 }
+.or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: #777;
+}
+
+.or-divider::before,
+.or-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+.google-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: #222;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.google-login-btn:hover {
+  background: #f7f7f7;
+}

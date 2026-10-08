@@ -8,6 +8,7 @@ import { json } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Session from "../models/session.js";
+import { verifyIdToken } from "../services/googleAuthService.js";
 
 export const secretKey = "my-secret-key";
 
@@ -132,7 +133,6 @@ export const loginUser = async (req, res, next) => {
       await allSessions[0].deleteOne();
     }
 
-    console.log(allSessions);
     const session = await Session.create({ userId: foundUser._id });
     const sid = session._id;
 
@@ -219,4 +219,150 @@ export const allDevicesLogout = async (req, res) => {
     console.error("Error in allDevicesLogout:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+export const loginwithGoogle = async (req, res, next) => {
+  const mongoSession = await mongoose.startSession();
+
+  try {
+    const idToken = req.body.idToken;
+
+    const userData = await verifyIdToken(idToken);
+
+    const { name, email, picture } = userData;
+
+    const user = await User.findOne({ email });
+
+    // Start MongoDB transaction
+    mongoSession.startTransaction();
+
+    if (!user) {
+      // Create root directory
+      const rootDirectory = await Directory.create(
+        [
+          {
+            name: "rootDirectory",
+            parentDir: null,
+            ownerId: null,
+            type: "folder",
+          },
+        ],
+        { session: mongoSession },
+      );
+
+      const rootDirId = rootDirectory[0]._id;
+
+      // Create user
+      const newUser = await User.create(
+        [
+          {
+            name,
+            email,
+            picture,
+            rootDirId,
+          },
+        ],
+        { session: mongoSession },
+      );
+
+      const userId = newUser[0]._id;
+
+      // Update root directory owner
+      await Directory.updateOne(
+        {
+          _id: rootDirId,
+        },
+        {
+          $set: {
+            ownerId: userId,
+          },
+        },
+        { session: mongoSession },
+      );
+
+      // Create login session
+      const userSession = await Session.create({
+        userId,
+      });
+
+      const sid = userSession._id;
+
+      // Save session ID in cookie
+      res.cookie("token", sid, {
+        signed: true,
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 1000 * 24 * 7,
+      });
+
+      // Commit transaction
+      await mongoSession.commitTransaction();
+
+      return res.status(200).json({
+        message: "User created and login successfully through Google",
+        rootId: rootDirId,
+        user: newUser[0],
+      });
+    }
+
+    // Existing user
+    const allSessions = await Session.find({
+      userId: user._id,
+    });
+
+    // Maximum 2 devices can be logged in
+    if (allSessions.length >= 2) {
+      await allSessions[0].deleteOne();
+    }
+
+    // Create new login session
+    const userSession = await Session.create({
+      userId: user._id,
+    });
+
+    const sid = userSession._id;
+
+    // Save session ID in cookie
+    res.cookie("token", sid, {
+      signed: true,
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 1000 * 24 * 7,
+    });
+
+    // Commit transaction
+    await mongoSession.commitTransaction();
+
+    return res.status(200).json({
+      message: "User login successfully through Google",
+      rootId: user.rootDirId,
+      user,
+    });
+  } catch (err) {
+    // Abort transaction only if it is active
+    if (mongoSession.inTransaction()) {
+      await mongoSession.abortTransaction();
+    }
+
+    console.log("Google login error:", err);
+
+    if (err.code === 11000) {
+      if (err.keyValue?.email) {
+        return res.status(409).json({
+          message: "User already exists",
+        });
+      }
+    }
+
+    next(err);
+  } finally {
+    await mongoSession.endSession();
+  }
+};
+
+export const getMe = async (req, res) => {
+  const user = req.user;
+  res.status(200).json({ user });
 };

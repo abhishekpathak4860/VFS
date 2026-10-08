@@ -275,21 +275,11 @@ function DirectoryView() {
             >
               {/* User Icon Avatar */}
               <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-                {user?.email ? (
-                  user.email.charAt(0).toUpperCase()
-                ) : (
-                  <svg
-                    className="w-5 h-5 text-blue-600"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                )}
+                <img
+                  src="https://lh3.googleusercontent.com/a/ACg8ocJxZZvy_Ju19IEAoE3QCnHCgE4-tgmlEZyls8pYlsdeoU78T19a=s96-c"
+                  alt=""
+                  className="w-full h-full object-cover rounded-2xl"
+                />
               </div>
               <svg
                 className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${

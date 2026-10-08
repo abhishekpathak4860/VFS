@@ -17,12 +17,15 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
     },
 
     rootDirId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Directory",
+    },
+    picture: {
+      type: String,
+      default: "https://pngtree.com/so/user-profile-image",
     },
   },
   {

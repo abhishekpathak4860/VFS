@@ -36,7 +36,7 @@ export default function List({
   async function savefilename(oldfilename, newfilename) {
     try {
       const res = await axios.patch(
-        `http://localhost:5000/file/${id}`,
+        `${import.meta.env.VITE_BACKEND_LOCAL_URL}/file/${id}`,
         {
           oldfilename,
           newfilename,
@@ -90,13 +90,13 @@ export default function List({
         )}
 
         <a
-          href={`http://localhost:5000/file/${id}?action=open`}
+          href={`${import.meta.env.VITE_BACKEND_LOCAL_URL}/file/${id}?action=open`}
           className="text-sm text-blue-600 hover:underline px-2 py-1"
         >
           Open
         </a>
         <a
-          href={`http://localhost:5000/file/${id}?action=download`}
+          href={`${import.meta.env.VITE_BACKEND_LOCAL_URL}/file/${id}?action=download`}
           className="text-sm text-blue-600 hover:underline px-2 py-1"
         >
           Download

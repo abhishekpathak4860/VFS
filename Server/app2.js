@@ -12,7 +12,7 @@ import authRoute from "./Routes/authRoutes.js";
 
 import { connectDB } from "./config/db.js";
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = "http://localhost:5173";
 const app = express();
 app.use(express.json());
 app.use(cookieParser(secretKey));
@@ -23,19 +23,13 @@ app.use(cookieParser(secretKey));
 app.use(
   cors({
     origin: [FRONTEND_URL],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   }),
 );
 
 try {
   await connectDB();
-  // const db = await connectDB();
-  // console.log("DB Connected Successfully");
-  // app.use((req, res, next) => {
-  //   req.db = db;
-  //   next();
-  // });
 
   //serving directory
   app.use("/directory", checkAuth, folderRoute);
@@ -59,7 +53,7 @@ try {
   app.use((err, req, res, next) => {
     res.status(500).json({ message: "something went wrong" });
   });
-  app.listen(5000, () => {
+  app.listen(5001, () => {
     console.log("Server started successfully");
   });
 } catch (err) {

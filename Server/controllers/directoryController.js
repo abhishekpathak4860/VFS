@@ -45,6 +45,7 @@ export const createFolder = async (req, res, next) => {
   try {
     const { foldername } = req.params;
     const { uid } = req.cookies;
+    const userId = req.user._id;
 
     const parentDirId = req.headers.parentdirid;
 
@@ -53,7 +54,7 @@ export const createFolder = async (req, res, next) => {
 
       parentDir: parentDirId ? new mongoose.Types.ObjectId(parentDirId) : null,
 
-      ownerId: new mongoose.Types.ObjectId(uid),
+      ownerId: userId,
 
       type: "folder",
     });
