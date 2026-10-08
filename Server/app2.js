@@ -12,7 +12,6 @@ import authRoute from "./Routes/authRoutes.js";
 
 import { connectDB } from "./config/db.js";
 
-const FRONTEND_URL = "http://localhost:5173";
 const app = express();
 app.use(express.json());
 app.use(cookieParser(secretKey));
@@ -22,7 +21,7 @@ app.use(cookieParser(secretKey));
 // });
 app.use(
   cors({
-    origin: [FRONTEND_URL],
+    origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   }),
