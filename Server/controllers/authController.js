@@ -59,6 +59,7 @@ export const registerUser = async (req, res, next) => {
           password: hashedPassword,
 
           rootDirId,
+          authProvider: "local",
         },
       ],
       { session },
@@ -112,6 +113,21 @@ export const loginUser = async (req, res, next) => {
       return res.status(404).json({
         error: "user not exists",
         message: "user not exists",
+      });
+    }
+    // User registered through Google
+    if (foundUser.authProvider === "google") {
+      return res.status(400).json({
+        message:
+          "This account was registered with Google. Please continue with Google.",
+        authProvider: "google",
+      });
+    }
+
+    // Local account must have a password
+    if (!foundUser.password) {
+      return res.status(400).json({
+        message: "Password is not configured for this account.",
       });
     }
     // creating new hash
@@ -260,6 +276,7 @@ export const loginwithGoogle = async (req, res, next) => {
             email,
             picture,
             rootDirId,
+            authProvider: "google",
           },
         ],
         { session: mongoSession },

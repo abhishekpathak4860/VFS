@@ -18,6 +18,12 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
     },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      required: true,
+      default: "local",
+    },
 
     rootDirId: {
       type: mongoose.Schema.Types.ObjectId,
