@@ -276,7 +276,7 @@ function DirectoryView() {
               {/* User Icon Avatar */}
               <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
                 <img
-                  src="https://lh3.googleusercontent.com/a/ACg8ocJxZZvy_Ju19IEAoE3QCnHCgE4-tgmlEZyls8pYlsdeoU78T19a=s96-c"
+                  src={user?.picture}
                   alt=""
                   className="w-full h-full object-cover rounded-2xl"
                 />

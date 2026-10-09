@@ -337,7 +337,16 @@ export const loginwithGoogle = async (req, res, next) => {
     const userSession = await Session.create({
       userId: user._id,
     });
-
+    await User.updateOne(
+      {
+        _id: user._id,
+      },
+      {
+        $set: {
+          picture: picture,
+        },
+      },
+    );
     const sid = userSession._id;
 
     // Save session ID in cookie

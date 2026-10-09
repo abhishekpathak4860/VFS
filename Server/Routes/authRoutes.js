@@ -15,6 +15,10 @@ import {
   verifyOtpController,
 } from "../controllers/otpController.js";
 import checkAuth from "../auth.js";
+import {
+  githubCallback,
+  startGithubLogin,
+} from "../controllers/githubController.js";
 
 const router = express.Router();
 
@@ -28,5 +32,7 @@ router.post("/send-otp", sendOtpController);
 router.post("/verify-otp", verifyOtpController);
 router.post("/google", loginwithGoogle);
 router.get("/user", checkAuth, getMe);
+router.get("/auth/github", startGithubLogin);
 
+router.get("/auth/github/callback", githubCallback);
 export default router;
