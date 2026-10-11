@@ -141,8 +141,15 @@ function DirectoryView() {
   };
 
   useEffect(() => {
-    fetchDirectory(CurrentPath);
-  }, [dirPath]);
+    // If there is no dirPath in the URL but we have a rootId in local storage, redirect to it
+    if (!dirPath && rootId) {
+      navigate(`/${rootId}`);
+    }
+    // Only fetch the directory if dirPath actually exists in the URL
+    else if (dirPath) {
+      fetchDirectory(CurrentPath);
+    }
+  }, [dirPath, rootId, navigate, CurrentPath]);
 
   const fetchDirectory = async (path) => {
     try {
