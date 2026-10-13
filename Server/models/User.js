@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Directory",
     },
+    role: {
+      type: String,
+      enum: ["admin", "manager", "user"],
+      default: "user",
+    },
     picture: {
       type: String,
       default: "https://pngtree.com/so/user-profile-image",

@@ -127,6 +127,23 @@ export default function Login() {
             </svg>
             Sign in with Github
           </button>
+
+          <div style={{ marginTop: "20px", textAlign: "center" }}>
+            <p style={{ marginBottom: "8px", color: "#666" }}>
+              Admin or Manager?
+            </p>
+            <Link
+              to="/admin-manager-login"
+              style={{
+                color: "#4f46e5",
+                fontWeight: "600",
+                textDecoration: "none",
+              }}
+            >
+              Login to Staff Portal
+            </Link>
+          </div>
+
           <p>
             Don't have an account? <Link to="/register">Register</Link>
           </p>

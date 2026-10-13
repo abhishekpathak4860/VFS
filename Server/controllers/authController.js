@@ -392,3 +392,25 @@ export const getMe = async (req, res) => {
   const user = req.user;
   res.status(200).json({ user });
 };
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const AllUsers = await User.find().lean();
+    const filterUsers = AllUsers.filter(
+      (user) => user.role !== "admin" && user.role !== "manager",
+    );
+    const users = await Promise.all(
+      filterUsers.map(async (user) => {
+        const session = await Session.findOne({ userId: user._id }).lean();
+        return {
+          id: user._id,
+          name: user.name,
+          isLogin: !!session,
+        };
+      }),
+    );
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
